@@ -1,0 +1,8 @@
+DB_NAME: SHAWNDB
+COLLECTION_NAME: rider_records
+FILE_PATH: "output.csv"
+MONGO_URL: "mongodb+srv://shawnthomas0507:shawn@cluster0.vpv91rc.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+FILE_PATH_TRAIN: "train.csv"
+
+
+
