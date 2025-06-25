@@ -1,6 +1,6 @@
-# 🚊 SEPTA Smart Agent System
+# 🚊 SEPTA Intelligence
 
-Welcome to the **SEPTA Smart Agent System**, an intelligent AI-powered assistant for analyzing, forecasting, and providing insights about SEPTA (Southeastern Pennsylvania Transportation Authority) routes.
+Welcome to the **SEPTA Intelligence**, an intelligent AI-powered assistant for analyzing, forecasting, and providing insights about SEPTA (Southeastern Pennsylvania Transportation Authority) routes.
 
 This project leverages large language models and smart decision logic to automate tasks such as:
 - Identifying potential **risks** in specific transit routes
