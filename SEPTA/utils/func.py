@@ -19,12 +19,19 @@ from tavily import TavilyClient
 
 def load_yaml():
     try:
-        with open("C:\\Users\\shawn\\OneDrive\\Desktop\\NewProject\\SEPTA_MODEL\\SEPTA\\yaml_files\\common.yaml", "r") as f:
+        with open("C:\\Users\\shawn\\OneDrive\\Desktop\\NewProject\\SEPTA_MODEL\\SEPTA\\config\\common.yaml", "r") as f:
             config = yaml.safe_load(f)
         return config 
     except Exception as e:
         raise e
 
+def load_instructions_yaml():
+    try:
+        with open("C:\\Users\\shawn\\OneDrive\\Desktop\\NewProject\\SEPTA_MODEL\\SEPTA\\config\\instructions.yaml", "r") as f:
+            config = yaml.safe_load(f)
+        return config 
+    except Exception as e:
+        raise e
 
 
 def to_csv(df: pd.DataFrame,file_path:str):
@@ -36,7 +43,6 @@ def to_csv(df: pd.DataFrame,file_path:str):
 
 @function_tool
 def get_forecasts(route_number:int,months_ahead:int):
-        """  Forecasts ridership numbers of a given route number in given months_ahead from now """
 
         print("forecasting")
         df=pd.read_csv("C:\\Users\\shawn\\OneDrive\\Desktop\\NewProject\\SEPTA_MODEL\\Artifacts\\train.csv")
@@ -45,6 +51,10 @@ def get_forecasts(route_number:int,months_ahead:int):
         print(f"route number is {route_number} and months ahead is {months_ahead}")
         future = model.make_future_dataframe(periods=months_ahead, freq='M')
         forecast = model.predict(future)
+        forecasted_csv=forecast.to_csv(index=False)
+        print(forecasted_csv)
+
+        print("this is working")
         plt.figure(figsize=(20, 6))
 
 
@@ -73,7 +83,31 @@ def get_forecasts(route_number:int,months_ahead:int):
         print("plotting")
         plt.show()
         
-        return {"success":"ok"}
+        return {"forecasted_data":forecasted_csv}
+
+
+
+
+@function_tool
+def get_forecasts_to_identify_risk(route_number:int,months_ahead:int):
+
+        print(" we have entered risk identifying agent and now we are forecasting")
+        print("forecasting")
+        df=pd.read_csv("C:\\Users\\shawn\\OneDrive\\Desktop\\NewProject\\SEPTA_MODEL\\Artifacts\\train.csv")
+        last_date = df['ds'].max()
+        model=joblib.load(f"C:\\Users\\shawn\\OneDrive\\Desktop\\NewProject\\SEPTA_MODEL\\Artifacts\\models\\route_{route_number}.pkl")
+        print(f"route number is {route_number} and months ahead is {months_ahead}")
+        future = model.make_future_dataframe(periods=months_ahead, freq='M')
+        forecast = model.predict(future)
+        
+        try:
+            forecasted_csv=forecast.to_csv(index=False)
+            historical_csv=df[df['Route']==f'{route_number}'].to_csv(index=False)
+        except Exception as e:
+             print("failed",e)
+
+        print("function working")
+        return {"forecasted_data":forecasted_csv,"historical_data":historical_csv}
 
 
 
@@ -84,11 +118,30 @@ def get_information_about_routes(route_number: str,message: str):
      csv_text = extracted.to_csv(index=False)
      return {"data":csv_text}
 
-
 @function_tool
 def search_web(question: str):
     tavily_client = TavilyClient(api_key=os.getenv("TAVILY_API"))
     response = tavily_client.search(question)
     return {"response":response}
+
+
+
+
+async def route_identify(agent:Agent,route:str,df:pd.DataFrame):
+    extracted=df[df['Route']==route]
+    csv_text = extracted.to_csv(index=False)
+    result=Runner.run(agent,csv_text)
+    return result.final_output
+
+
+
+
+async def identify_risky_routes(agent: Agent):
+    df=pd.read_csv("C:\\Users\\shawn\\OneDrive\\Desktop\\NewProject\\SEPTA_MODEL\\Artifacts\\output.csv")
+    tasks=[asyncio.create_task(route_identify(agent,route=route,df=df))for route in df['Route'].unique()]
+    results= await asyncio.gather(*tasks)
+    return results
+
+
 
 

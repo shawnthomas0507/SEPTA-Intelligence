@@ -8,8 +8,8 @@ from SEPTA.utils.func import load_yaml
 import asyncio
 
 
-"""
-common=load_yaml()
+
+"""common=load_yaml()
 
 ingest=DataIngestionComponent(path_to_store_ds=common['FILE_PATH'],mongo_url=common['MONGO_URL'],collection_name=common['COLLECTION_NAME'],database_name=common['DB_NAME'])
 
@@ -27,7 +27,6 @@ tr=Forecast_Trainer(path_to_data="C:\\Users\\shawn\\OneDrive\\Desktop\\NewProjec
 
 tr.train_forecaster()
 """
-
 message=input("Enter a query")
 sa=SEPTAAgent(path_to_data="C:\\Users\\shawn\\OneDrive\\Desktop\\NewProject\\SEPTA_MODEL\\Artifacts\\train.csv",message=message)
 res=sa.run_agent()
