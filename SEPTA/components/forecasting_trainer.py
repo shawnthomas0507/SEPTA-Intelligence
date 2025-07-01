@@ -4,7 +4,7 @@ import numpy as np
 from pathlib import Path
 import os 
 import joblib
-
+import mlflow
 
 
 
@@ -24,17 +24,26 @@ class Forecast_Trainer:
         df=self.data_loading()
         routes=df['Route'].unique()
 
-        for route in routes:
-            df_route = df[df["Route"] == route][["ds", "y"]]
-            model = Prophet(
-                yearly_seasonality=True,
-                weekly_seasonality=False,
-                daily_seasonality=False
-            )
+        with mlflow.start_run(run_name="Forecast_Training_All_Routes"):
 
-            model.fit(df_route)
-            os.makedirs(self.model_store,exist_ok=True)
-            joblib.dump(model,os.path.join(self.model_store,f"route_{route}.pkl"))
+            for route in routes:
+                with mlflow.start_run(run_name=f"Route_{route}", nested=True):
+
+                    df_route = df[df["Route"] == route][["ds", "y"]]
+                    model = Prophet(
+                        yearly_seasonality=True,
+                        weekly_seasonality=False,
+                        daily_seasonality=False
+                    )
+
+                    model.fit(df_route)
+                    os.makedirs(self.model_store,exist_ok=True)
+                    model_path = os.path.join(self.model_store, f"route_{route}.pkl")
+
+                    joblib.dump(model,os.path.join(self.model_store,f"route_{route}.pkl"))
+                    mlflow.log_param("route",route)
+                    mlflow.log_artifact(model_path, artifact_path="models")
+
 
                        
     

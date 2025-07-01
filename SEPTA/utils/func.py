@@ -15,6 +15,11 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 from langchain_groq import ChatGroq
 from tavily import TavilyClient
+import folium
+
+
+load_dotenv()
+
 
 
 def load_yaml():
@@ -40,6 +45,13 @@ def to_csv(df: pd.DataFrame,file_path:str):
     except Exception as e:
         raise e 
     
+def send_text(body:str,pushover_user=os.getenv("PUSHOVER_USER"),pushover_token=os.getenv("PUSHOVER_TOKEN"),pushover_url="https://api.pushover.net/1/messages.json"):
+        print(f"push : {body}")
+        payload={"user":pushover_user,"token":pushover_token,"message":body}
+        requests.post(pushover_url,data=payload)
+        return {"status":"success"}
+
+
 
 @function_tool
 def get_forecasts(route_number:int,months_ahead:int):
@@ -120,9 +132,36 @@ def get_information_about_routes(route_number: str,message: str):
 
 @function_tool
 def search_web(question: str):
-    tavily_client = TavilyClient(api_key=os.getenv("TAVILY_API"))
-    response = tavily_client.search(question)
+    print("searching")
+    try:
+        tavily_client = TavilyClient(api_key=os.getenv("TAVILY_API"))
+        response = tavily_client.search(question)
+    except Exception as e:
+         raise e
     return {"response":response}
+
+
+
+@function_tool
+def send_report(route_at_risk:int,reason_for_risk:str):
+     report=f"route:{route_at_risk},reason:{reason_for_risk}"
+     res=send_text(body=report)
+     if res['status']=="success":
+          return {"response":"i have sent you the report"}
+
+
+@function_tool
+def get_all_stop_information(route:int):
+    print("getting stop information")
+
+    try:
+        df=pd.read_csv("C:\\Users\\shawn\\OneDrive\\Desktop\\NewProject\\SEPTA_MODEL\\Artifacts\\route_info.csv")
+        df=df[['X','Y','FID','GISDBID','Mode','Route','Direction','Stop_Code','Stop','Lat','Lon']]	
+        df = df[df['Route'] == route] 
+        print(df.to_csv())
+        return {"stop_information":df.to_csv()}
+    except Exception as e:
+         raise e
 
 
 

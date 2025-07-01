@@ -11,7 +11,7 @@ from prophet import Prophet
 import pandas as pd 
 import matplotlib.pyplot as plt 
 import matplotlib.dates as mdates
-from SEPTA.utils.func import get_forecasts,get_information_about_routes,search_web,get_forecasts_to_identify_risk,load_instructions_yaml
+from SEPTA.utils.func import get_forecasts,get_information_about_routes,search_web,get_forecasts_to_identify_risk,load_instructions_yaml,send_report,get_all_stop_information
 load_dotenv()
 
 
@@ -29,11 +29,13 @@ class SEPTAAgent:
         llama_3_model =OpenAIChatCompletionsModel(model="llama-3.3-70b-versatile",openai_client=groq_client)
         return llama_3_model
     
+
+    
     def get_data(self)->pd.DataFrame:
         df=pd.read_csv(self.data_source)
         return df 
     
-    def make_identify_risky_routes_tool(self,risky_routes_agent):
+    # <def make_identify_risky_routes_tool(self,risky_routes_agent):
         @function_tool
         async def identify_risky_routes():
             df = pd.read_csv("C:\\Users\\shawn\\OneDrive\\Desktop\\NewProject\\SEPTA_MODEL\\Artifacts\\output.csv")
@@ -61,7 +63,7 @@ class SEPTAAgent:
 
         instructions=f"{self.instructions_yaml_config['insight_agent']['description']}"
 
-        tools=[get_information_about_routes,search_web]
+        tools=[get_information_about_routes,search_web,get_all_stop_information]
 
         insight_agent=Agent(
             name="Insight Agent",
@@ -71,7 +73,7 @@ class SEPTAAgent:
             handoff_description="Answer user questions about route data"
         )
 
-        tools=[get_forecasts_to_identify_risk]
+        tools=[get_forecasts_to_identify_risk,send_report]
         instructions=f"{self.instructions_yaml_config['risky_routes_agent']['description']}"
 
 
@@ -81,7 +83,7 @@ class SEPTAAgent:
             model=self.set_model(),
             tools=tools
         )
-        identify_risky_routes_tool = self.make_identify_risky_routes_tool(risky_routes_agent)
+        #identify_risky_routes_tool = self.make_identify_risky_routes_tool(risky_routes_agent)
 
 
         tools=[get_forecasts]

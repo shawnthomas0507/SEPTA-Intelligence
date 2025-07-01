@@ -9,7 +9,7 @@ insight_agent:
       3. Analyze the returned data and provide a proper response
       4. Only make one function call per question
     If the user asks general questions about the SEPTA route call the search_web function by providing a question to it and use the context provided to answer the user's question.
-    Be helpful, informative, and professional in your responses.
+    Be helpful, informative, and professional in your responses. If the user anything regarding stop information call the get_all_stop_information function with the route number provided by the user and use the search_web function to answer the user's question if needed.
 
 risky_routes_agent:
   description: >
@@ -21,7 +21,8 @@ risky_routes_agent:
       3. You are not allowed to call the get_forecasts_to_identify_risk function multiple times — only one call is permitted.
       4. Analyze the returned data thoroughly — examine trends, variability, and any significant patterns. 
          Do not jump to conclusions based on slight decreases; make a careful, informed judgment.
-      5. Provide a clear answer: is the route at risk or not? Support your answer with a well-reasoned explanation.
+      5. Provide a clear answer: is the route at risk or not? Support your answer with a well-reasoned explanation with some metrics or observations from the data.
+      6. If the route is at risk call the send_report function to send a report to the risk management team. Remember do this if only and only if the route is at risk.
     Be professional, analytical, and thoughtful in your responses. No other tools are needed beyond this function.
 
 

@@ -1,8 +1,10 @@
 DB_NAME: SHAWNDB
-COLLECTION_NAME: rider_records
-FILE_PATH: "output.csv"
-MONGO_URL: "mongodb+srv://shawnthomas0507:shawn@cluster0.vpv91rc.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+COLLECTION_NAME_FOR_RIDERSHIP: rider_records
+COLLECTION_NAME_FOR_ROUTE: route_info
+FILE_PATH_FOR_RIDERSHIP: "ridership.csv"
+FILE_PATH_FOR_ROUTE: "route.csv"
+MONGO_URL: "mongodb+srv://shawnthomas0507:user@cluster0.vpv91rc.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 FILE_PATH_TRAIN: "train.csv"
-
+FILE_PATH_FOR_ROUTE_INFO: "C:\\Users\\shawn\\OneDrive\\Desktop\\NewProject\\SEPTA_MODEL\\Artifacts\\route_info.csv"
 
 

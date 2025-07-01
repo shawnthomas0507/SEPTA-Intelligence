@@ -8,14 +8,15 @@ from SEPTA.utils.func import load_yaml
 import asyncio
 
 
+"""
+common=load_yaml()
 
-"""common=load_yaml()
-
-ingest=DataIngestionComponent(path_to_store_ds=common['FILE_PATH'],mongo_url=common['MONGO_URL'],collection_name=common['COLLECTION_NAME'],database_name=common['DB_NAME'])
+ingest=DataIngestionComponent(path_to_store_ridership=common['FILE_PATH_FOR_RIDERSHIP'],path_to_store_route=common['FILE_PATH_FOR_ROUTE'],mongo_url=common['MONGO_URL'],collection_name_for_ridership=common['COLLECTION_NAME_FOR_RIDERSHIP'],collection_name_for_route=common['COLLECTION_NAME_FOR_ROUTE'],database_name=common['DB_NAME'],file_path_for_route_info=common['FILE_PATH_FOR_ROUTE_INFO'])
 
 op=ingest.ingest_data()
 print(op)
-prepare=DataPreparationComponent(path_to_data=f"Artifacts/{common['FILE_PATH']}",path_to_store=common['FILE_PATH_TRAIN'])
+
+prepare=DataPreparationComponent(path_to_data=f"Artifacts/{common['FILE_PATH_FOR_RIDERSHIP']}",path_to_store=common['FILE_PATH_TRAIN'])
 
 
 op=prepare.save_train_object()
@@ -26,10 +27,16 @@ tr=Forecast_Trainer(path_to_data="C:\\Users\\shawn\\OneDrive\\Desktop\\NewProjec
                     path_to_store="C:\\Users\\shawn\\OneDrive\\Desktop\\NewProject\\SEPTA_MODEL\\Artifacts\models")
 
 tr.train_forecaster()
+
 """
+
 message=input("Enter a query")
 sa=SEPTAAgent(path_to_data="C:\\Users\\shawn\\OneDrive\\Desktop\\NewProject\\SEPTA_MODEL\\Artifacts\\train.csv",message=message)
-res=sa.run_agent()
-print(res.final_output)
 
 
+
+
+
+if __name__=="__main__":
+    res=sa.run_agent()
+    print(res.final_output)
