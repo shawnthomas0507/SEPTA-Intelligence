@@ -11,7 +11,7 @@ from prophet import Prophet
 import pandas as pd 
 import matplotlib.pyplot as plt 
 import matplotlib.dates as mdates
-from SEPTA.utils.func import get_forecasts,get_information_about_routes,search_web,get_forecasts_to_identify_risk,load_instructions_yaml,send_report,get_all_stop_information
+from SEPTA.utils.func import get_forecasts,get_information_about_routes,look_up_tavily,get_forecasts_to_identify_risk,load_instructions_yaml,send_report,get_all_stop_information,plot_stops_on_map
 load_dotenv()
 
 
@@ -63,15 +63,14 @@ class SEPTAAgent:
 
         instructions=f"{self.instructions_yaml_config['insight_agent']['description']}"
 
-        tools=[get_information_about_routes,search_web,get_all_stop_information]
+        tools=[get_information_about_routes,look_up_tavily,get_all_stop_information,plot_stops_on_map]
 
         insight_agent=Agent(
             name="Insight Agent",
             instructions=instructions,
             tools=tools,
-            model=self.set_model(),
-            handoff_description="Answer user questions about route data"
-        )
+            model=self.set_model()
+                            )
 
         tools=[get_forecasts_to_identify_risk,send_report]
         instructions=f"{self.instructions_yaml_config['risky_routes_agent']['description']}"

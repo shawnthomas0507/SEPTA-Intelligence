@@ -24,7 +24,7 @@ load_dotenv()
 
 def load_yaml():
     try:
-        with open("C:\\Users\\shawn\\OneDrive\\Desktop\\NewProject\\SEPTA_MODEL\\SEPTA\\config\\common.yaml", "r") as f:
+        with open("C:\\Users\\shawn\\OneDrive\\Desktop\\NewProject\\SEPTA_MODEL\\SEPTA\\config\\common.yaml", "r",encoding="utf-8") as f:
             config = yaml.safe_load(f)
         return config 
     except Exception as e:
@@ -32,7 +32,7 @@ def load_yaml():
 
 def load_instructions_yaml():
     try:
-        with open("C:\\Users\\shawn\\OneDrive\\Desktop\\NewProject\\SEPTA_MODEL\\SEPTA\\config\\instructions.yaml", "r") as f:
+        with open("C:\\Users\\shawn\\OneDrive\\Desktop\\NewProject\\SEPTA_MODEL\\SEPTA\\config\\instructions.yaml", "r",encoding="utf-8") as f:
             config = yaml.safe_load(f)
         return config 
     except Exception as e:
@@ -130,15 +130,22 @@ def get_information_about_routes(route_number: str,message: str):
      csv_text = extracted.to_csv(index=False)
      return {"data":csv_text}
 
+
+
+
 @function_tool
-def search_web(question: str):
-    print("searching")
+def look_up_tavily(question: str):
+    print(f"searching for: {question}")
     try:
         tavily_client = TavilyClient(api_key=os.getenv("TAVILY_API"))
         response = tavily_client.search(question)
+        print(f"Search successful, response type: {type(response)}")
+        print(f"Search response keys: {response.keys() if isinstance(response, dict) else 'Not a dict'}")
+        return {"response": response}
     except Exception as e:
-         raise e
-    return {"response":response}
+        print(f"Search failed with error: {str(e)}")
+        # Return a structured error response instead of raising
+        return {"error": f"Search failed: {str(e)}", "response": None}
 
 
 
@@ -158,29 +165,27 @@ def get_all_stop_information(route:int):
         df=pd.read_csv("C:\\Users\\shawn\\OneDrive\\Desktop\\NewProject\\SEPTA_MODEL\\Artifacts\\route_info.csv")
         df=df[['X','Y','FID','GISDBID','Mode','Route','Direction','Stop_Code','Stop','Lat','Lon']]	
         df = df[df['Route'] == route] 
-        print(df.to_csv())
         return {"stop_information":df.to_csv()}
     except Exception as e:
          raise e
 
 
 
-
-async def route_identify(agent:Agent,route:str,df:pd.DataFrame):
-    extracted=df[df['Route']==route]
-    csv_text = extracted.to_csv(index=False)
-    result=Runner.run(agent,csv_text)
-    return result.final_output
-
-
-
-
-async def identify_risky_routes(agent: Agent):
-    df=pd.read_csv("C:\\Users\\shawn\\OneDrive\\Desktop\\NewProject\\SEPTA_MODEL\\Artifacts\\output.csv")
-    tasks=[asyncio.create_task(route_identify(agent,route=route,df=df))for route in df['Route'].unique()]
-    results= await asyncio.gather(*tasks)
-    return results
-
-
+@function_tool
+def plot_stops_on_map(route:int,Latitude: float,Longitude: float):
+     df=pd.read_csv("C:\\Users\\shawn\\OneDrive\\Desktop\\NewProject\\SEPTA_MODEL\\Artifacts\\route_info.csv")
+     print("The latitude is :",Latitude,"\n")
+     print("The longitude is",Longitude)
+     m = folium.Map(location=[df['Lat'].mean(), df['Lon'].mean()], zoom_start=12)
+     folium.Marker(
+        location=[Latitude,Longitude],
+        popup=f"Lat: {Latitude}, Lon: {Longitude}",
+     ).add_to(m)
+     
+     file_path = f"C:\\Users\\shawn\\OneDrive\\Desktop\\NewProject\\SEPTA_MODEL\\Artifacts\\{route}_map.html"
+     m.save(file_path)
+     
+     return {"response":"map saved"}
 
 
+     
